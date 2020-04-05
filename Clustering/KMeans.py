@@ -5,8 +5,11 @@ class KMeans:
     def __init__(self):
         self.means = None
         self.labels = None
+        self.x = None
 
     def fit(self, x, k, early_stop):
+
+        self.x =  x
 
         # Initialize mean points
         means = x[np.random.randint(0, x.shape[0], size=k)]
@@ -40,4 +43,17 @@ class KMeans:
         for label in np.unique(labels):
             new_means[label] = np.mean(x[labels == label], axis=0)
         return new_means
+
+    def knn(self, x, k):
+        """
+        K Nearest Neighbor
+        """
+
+        y = np.zeros(len(x))
+        for i in range(len(x)):
+            distance = np.sqrt(np.sum((self.x - x[i]) ** 2, axis=1))
+            k_nearst_neighbor = self.labels[np.argsort(distance)[:k]]
+            y[i] = k_nearst_neighbor[np.argmax(np.bincount(k_nearst_neighbor))]
+
+        return y
 
