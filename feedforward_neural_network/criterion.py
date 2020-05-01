@@ -32,7 +32,9 @@ class MultiClassFocalLoss(nn.Module):
     def __init__(self, gamma: int = 0, pre_log: bool = True):
         """
         This Module is designed as a customized loss criterion for multi-classification,
-        implementing - mean(log(likelihood)).
+        implementing - mean((1 - likelihood) ** gamma * log(likelihood)).
+        Paper link: https://arxiv.org/abs/1708.02002
+
         Args:
             gamma: The parameter of focal factor.
             pre_log: True if net_output has already been log transformed.
