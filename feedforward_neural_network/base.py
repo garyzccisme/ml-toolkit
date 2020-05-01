@@ -7,7 +7,14 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from torch.optim.optimizer import Optimizer
+import torch.optim.lr_scheduler as lr
 from torch.utils.data import Dataset
+
+from utils.logger import get_logger
+
+
+LOGGER = get_logger(name="neural_network_experimental.py", level=logging.INFO)
 
 
 class FeedForwardNetwork:
@@ -15,11 +22,11 @@ class FeedForwardNetwork:
             self,
             network: torch.nn.Module,
             criterion: torch.nn.modules.loss,
-            optimizer: torch.optim.optimizer.Optimizer,
+            optimizer: Optimizer,
             data_type: torch.dtype = torch.float32,
             batch_size: int = 256,
             shuffle_training_examples: bool = False,
-            scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+            scheduler: Optional[lr._LRScheduler] = None,
     ):
         self.network = network
         if network:
@@ -33,7 +40,9 @@ class FeedForwardNetwork:
         self.shuffle_training_examples = shuffle_training_examples
         if scheduler:
             self.scheduler = scheduler
-            self.scheduler_initial_state_dict = scheduler.state_dict()
+        else:
+            self.scheduler = lr.StepLR(self.optimizer, step_size=1, gamma=0.99)
+        self.scheduler_initial_state_dict = self.scheduler.state_dict()
 
         # placeholders until functions which assign them are called
         self.network_output = None
@@ -238,9 +247,9 @@ class FeedForwardNetwork:
             self.training_step(batch, targets)
         self.calculate_training_loss()
         self.epochs_trained += 1
-        # LOGGER.info(
-        #     "Training loss after {} epochs: {}".format(str(self.epochs_trained), str(self.training_average_loss))
-        # )
+        LOGGER.info(
+            "Training loss after {} epochs: {}".format(str(self.epochs_trained), str(self.training_average_loss))
+        )
 
     def _train(self):
         """
@@ -267,12 +276,12 @@ class FeedForwardNetwork:
                 best_params = self.network.state_dict()
             else:
                 epochs_since_improvement += 1
-            # LOGGER.info("Epochs since improvement in validation_loss: {} \n".format(epochs_since_improvement))
+            LOGGER.info("Epochs since improvement in validation_loss: {} \n".format(epochs_since_improvement))
             if self.maximum_epochs_allowed is not None and self.epochs_trained >= self.maximum_epochs_allowed:
                 break
-        # LOGGER.info("Training complete after {} epochs \n".format(self.epochs_trained))
-        # LOGGER.info("Best training loss achieved: {} \n".format(self.training_average_loss))
-        # LOGGER.info("Best validation loss achieved: {}".format(self.validation_average_loss))
+        LOGGER.info("Training complete after {} epochs \n".format(self.epochs_trained))
+        LOGGER.info("Best training loss achieved: {} \n".format(self.training_average_loss))
+        LOGGER.info("Best validation loss achieved: {}".format(self.validation_average_loss))
         self.learned_params = best_params
         self.network.load_state_dict(best_params)
 
