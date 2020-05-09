@@ -11,7 +11,6 @@ class LinearRegression:
             raise ValueError('Invalid input')
         if self.with_intercept:
             X = np.stack((np.ones(len(X)), np.array(X)))
-
         self.beta = (X.T @ X).I @ X.T @ y
 
     def predict(self, X):
