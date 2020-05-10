@@ -20,14 +20,17 @@ class LogisticRegression:
             X = np.concatenate((np.ones([len(X), 1]), np.array(X)), axis=1)
 
         self.theta = np.random.rand(X.shape[1], 1)
+        loss = self.get_loss(X, y)
 
         # Gradient Descent
         epoch = 0
         while epoch < epochs:
             loss = self.get_loss(X, y)
-            print('===== Epoch {} ===== Loss {} ====='.format(epoch, round(loss, 2)))
+            if epoch % 10 == 0:
+                print('===== Epoch {} ===== Loss {} ====='.format(epoch, round(loss, 2)))
             self.theta -= lr * self.get_gradient(X, y)
             epoch += 1
+        print('===== Epoch {} ===== Loss {} ====='.format(epoch, round(loss, 2)))
 
     def predict(self, X, threshold=0.5):
         X = np.array(X)
