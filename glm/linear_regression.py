@@ -8,6 +8,8 @@ class LinearRegression:
         self.beta = None
 
     def fit(self, X, y):
+        X = np.array(X)
+        y = np.array(y)
         if len(X) != len(y):
             raise ValueError('Invalid input')
         if self.with_intercept:
