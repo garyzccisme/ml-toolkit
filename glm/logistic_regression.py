@@ -11,6 +11,9 @@ class LogisticRegression:
         self.theta = None
 
     def fit(self, X, y, lr=0.1, epochs=100):
+        X = np.array(X)
+        y = np.expand_dims(np.array(y), axis=1)
+
         if len(X) != len(y):
             raise ValueError('Invalid input')
         if self.with_intercept:
@@ -27,6 +30,11 @@ class LogisticRegression:
             epoch += 1
 
     def predict(self, X, threshold=0.5):
+        X = np.array(X)
+        if self.with_intercept:
+            X = np.concatenate((np.ones([len(X), 1]), np.array(X)), axis=1)
+        if X.shape[1] != len(self.theta):
+            raise ValueError('Invalid input')
         likelihood = self.get_likelihood(X)
         return np.where(likelihood >= threshold, 1, 0)
 
@@ -40,6 +48,6 @@ class LogisticRegression:
         return loss
 
     def get_gradient(self, X, y):
-        gradient = - X.T @ (self.get_likelihood(X) - y)
+        gradient = X.T @ (self.get_likelihood(X) - y)
         return gradient
 
