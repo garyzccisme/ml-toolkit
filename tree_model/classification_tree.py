@@ -64,20 +64,20 @@ class ClassificationTree:
 
         return root
 
-    def predict(self, x, node=None):
+    def predict(self, X, node=None):
 
+        X = np.array(X)
         if node is None:
             node = self.tree
-
         if isinstance(node, Leaf):
-            return np.ones(len(x)) * node.label
+            return np.ones(len(X)) * node.label
 
-        left_index = np.where(x[:, node.column_idx] <= node.threshold)
-        right_index = np.where(x[:, node.column_idx] > node.threshold)
+        left_index = np.where(X[:, node.column_idx] <= node.threshold)
+        right_index = np.where(X[:, node.column_idx] > node.threshold)
 
-        y = np.zeros(len(x))
-        y[left_index] = self.predict(x[left_index], node.left)
-        y[right_index] = self.predict(x[right_index], node.right)
+        y = np.zeros(len(X))
+        y[left_index] = self.predict(X[left_index], node.left)
+        y[right_index] = self.predict(X[right_index], node.right)
         return y
 
 
