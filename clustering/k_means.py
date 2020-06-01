@@ -3,43 +3,43 @@ import numpy as np
 
 class KMeans:
     def __init__(self):
-        self.means = None
+        self.centroids = None
         self.labels = None
         self.X = None
 
     def fit(self, X, k, early_stop):
         self.X = X
 
-        # Initial means points are randomly selected from range(number of data points)
-        means = X[np.random.choice(X.shape[0], size=k, replace=False)]
-        labels = self.classify(means)
+        # Initial centroids points are randomly selected from range(number of data points)
+        centroids = X[np.random.choice(X.shape[0], size=k, replace=False)]
+        labels = self.classify(centroids)
         step = 0
 
         # Start updating
         while step < early_stop:
-            new_means = self.update_means(labels)
+            new_centroids = self.update_centroids(labels)
             # Convergent
-            if (new_means == means).all:
+            if (new_centroids == centroids).all:
                 break
-            labels = self.classify(new_means)
-            means = new_means
+            labels = self.classify(new_centroids)
+            centroids = new_centroids
             step += 1
 
-        self.means = means
+        self.centroids = centroids
         self.labels = labels
 
-    def classify(self, means):
+    def classify(self, centroids):
         """
-        Do classification by given mean points. The data point shares the same label with the nearest mean point.
+        Do classification by given centroids points. The data point shares the same label with the nearest centroids point.
 
         Args:
-            means: Array in shape [k, X.shape[1]].
+            centroids: Array in shape [k, X.shape[1]].
 
         Returns: Array in shape [X.shape[0]], values in [0, k - 1].
 
         """
         distance_matrix = []
-        for point in means:
+        for point in centroids:
             # Use Euclidean distance
             distance = np.sqrt(np.sum((self.X - point) ** 2, axis=1))
             distance_matrix.append(distance)
@@ -47,9 +47,9 @@ class KMeans:
         labels = np.argmin(np.array(distance_matrix), axis=0)
         return labels
 
-    def update_means(self, labels):
+    def update_centroids(self, labels):
         """
-        Update mean points by given labels. The new mean is the mean of points with the same label.
+        Update centroids points by given labels. The new centroid is the mean of points with the same label.
 
         Args:
             labels: Array in shape [X.shape[0]], values in [0, k - 1].
@@ -57,10 +57,10 @@ class KMeans:
         Returns: Array in shape [k, X.shape[1]].
 
         """
-        new_means = []
+        new_centroids = []
         for label in range(max(labels) + 1):
-            new_means.append(np.mean(self.X[labels == label], axis=0))
-        return np.array(new_means)
+            new_centroids.append(np.mean(self.X[labels == label], axis=0))
+        return np.array(new_centroids)
 
     def knn(self, x, k):
         """
